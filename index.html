@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧通勤與數據儀表板</title>
+    <!-- 引入 Chart.js 用於繪製圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+        /* 最新消息列表 */
+        .news-list {
+            list-style: none;
+        }
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .news-date {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .news-title {
+            font-size: 0.95rem;
+            color: #2980b9;
+            font-weight: 500;
+        }
+        /* 圖表區塊 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📊 智慧通勤與數據監控系統</h1>
+    </header>
+
+    <div class="container">
+        <!-- 區塊一：最新消息 -->
+        <div class="card">
+            <h2>📢 最新消息</h2>
+            <ul id="newsList" class="news-list">
+                <li class="news-item">載入中...</li>
+            </ul>
+        </div>
+
+        <!-- 區塊二：數據圖表 (預留 MySQL 介面) -->
+        <div class="card">
+            <h2>📈 即時數據儀表板 (MySQL 資料預留介面)</h2>
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 動態載入最新消息 (未來可對應後端 PHP/Node.js 連線 MySQL 撈取)
+        fetch('script.json')
+            .then(response => response.json())
+            .then(data => {
+                const newsList = document.getElementById('newsList');
+                newsList.innerHTML = '';
+                data.news.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'news-item';
+                    li.innerHTML = `<div class="news-date">${item.date}</div><div class="news-title">${item.title}</div>`;
+                    newsList.appendChild(li);
+                });
+
+                // 2. 初始化圖表 (資料結構設計為未來可直接對接 MySQL JSON API)
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.chartData.labels, // X軸 (例如：日期或時間)
+                        datasets: [{
+                            label: '平均溫度 / AQI 趨勢',
+                            data: data.chartData.values, // Y軸數值 (未來由 MySQL 撈出)
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('資料載入失敗:', error);
+                document.getElementById('newsList').innerHTML = '<li class="news-item">無法載入資料</li>';
+            });
+    </script>
+</body>
+</html>
